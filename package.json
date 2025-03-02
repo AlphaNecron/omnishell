@@ -1,0 +1,6 @@
+{
+    "name": "omnishell",
+    "dependencies": {
+        "astal": "/usr/share/astal/gjs"
+    }
+}
