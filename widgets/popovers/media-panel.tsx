@@ -7,15 +7,14 @@ const wp = Wp.get_default();
 
 export default function MediaPanel() {
 	if (!wp) return null;
-	wp.devices[0]
 	return (
-			<box widthRequest={480} heightRequest={360} orientation={Gtk.Orientation.VERTICAL}>
+			<box widthRequest={480} heightRequest={360} vertical>
 				{/*<Adw.Carousel>*/}
 				{/*	<Adw.CarouselIndicatorDots/>*/}
 				{/*</Adw.Carousel>*/}
 				{/*{bind(wp, 'endpoints').as(eps => eps.map(ep => {*/}
 				{/*	return (*/}
-				{/*			<box hexpand orientation={Gtk.Orientation.VERTICAL}>*/}
+				{/*			<box hexpand vertical>*/}
 				{/*				<label>*/}
 				{/*					{bind(ep, 'name')}*/}
 				{/*				</label>*/}

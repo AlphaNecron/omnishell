@@ -1,0 +1,116 @@
+@use "sass:color";
+
+@use "colors";
+@use "mixins";
+
+@use "../widgets/status";
+@use "../widgets/value-slider";
+
+$icon_font: "Material Symbols Rounded";
+
+* {
+  all: unset;
+}
+
+.icon {
+  font-family: $icon_font;
+}
+
+scale {
+  &.horizontal > trough {
+	min-height: 16px;
+  }
+
+  > trough {
+	background: color.mix(colors.$base, colors.$accent, 75%);
+	border-radius: 12px;
+
+	> highlight {
+	  border-radius: 12px;
+	  background: colors.$accent;
+	}
+  }
+}
+
+levelbar {
+  &.vertical > trough {
+	min-width: 3px;
+  }
+
+  > trough {
+	> block.filled {
+	  background: colors.$accent;
+	  border-radius: 2px;
+	}
+  }
+}
+
+button {
+  transition: background-color 0.1s;
+  padding: 4px 6px;
+  border-radius: 16px;
+
+  &:hover {
+	background: rgba(colors.$accent, 10%);
+  }
+
+  &:active {
+	background: rgba(colors.$accent, 20%);
+  }
+}
+
+switch {
+  background: color.mix(colors.$base, colors.$accent, 60%);
+  border-radius: 16px;
+  -gtk-icon-size: 14px;
+  transition: background 0.1s;
+  padding: 4px;
+
+  > slider {
+	background: colors.$accent;
+	border-radius: 16px;
+	transition-duration: 0.2s;
+	transition-property: outline, background;
+
+	&:hover {
+	  outline: 6px solid rgba(colors.$accent, 20%);
+	}
+  }
+
+  &:checked {
+	background: color.mix(colors.$overlay2, colors.$accent, 25%);
+
+	> slider {
+	  background: colors.$base;
+
+	  &:hover {
+		outline-color: rgba(colors.$base, 20%)
+	  }
+	}
+  }
+}
+
+toolbarview {
+  padding: 4px;
+
+  headerbar {
+	padding: 4px 6px;
+	border-radius: 18px;
+	background: colors.$container_elevated;
+
+	.title {
+	  font-size: 14px;
+	  font-weight: bold;
+	}
+  }
+}
+
+tooltip {
+  padding: 4px 6px;
+  border-radius: 12px;
+  @include mixins.popup;
+}
+
+menu {
+
+}

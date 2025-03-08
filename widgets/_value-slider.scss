@@ -1,0 +1,10 @@
+@use "../styles/colors";
+
+.value-slider {
+  .icon {
+	background: colors.$accent;
+	color: colors.$base;
+	padding: 4px 6px;
+	border-radius: 12px;
+  }
+}

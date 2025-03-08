@@ -1,0 +1,115 @@
+@use "../../styles/colors";
+@use "sass:color";
+
+@mixin scheme($accent) {
+  .content {
+	border-color: rgba($accent, 5%);
+	background: color.mix(colors.$base, $accent, 90%);
+
+	.header .app-icon {
+	  background: $accent;
+	}
+
+	.action {
+	  color: $accent;
+
+	  &:hover {
+		background: rgba($accent, 10%);
+	  }
+
+	  &:active {
+		background: rgba($accent, 20%);
+	  }
+	}
+  }
+}
+
+window.notification-container {
+  margin: 24px 16px;
+}
+
+.notification {
+  &.floating > .content {
+	border: 1px solid;
+  }
+
+  &:not(:hover) .dismiss-button {
+	color: transparent;
+  }
+
+  &:hover .dismiss-button {
+	color: colors.$maroon;
+  }
+
+  &.critical {
+	@include scheme(colors.$maroon);
+  }
+
+  &.normal {
+	@include scheme(colors.$accent);
+  }
+
+  &.low {
+	@include scheme(colors.$green);
+  }
+
+  > .content {
+	border-radius: 20px;
+	padding: 6px;
+
+	> .header {
+	  margin-left: 6px;
+
+	  > .app-icon {
+		border-radius: 10px;
+		color: colors.$base;
+	  }
+
+	  > label.app-icon {
+		padding: 0 2px;
+		font-size: 20px;
+	  }
+
+	  > image.app-icon {
+		padding: 4px;
+		-gtk-icon-style: symbolic;
+	  }
+
+	  > .summary {
+		font-weight: bold;
+		font-size: 14px;
+		color: colors.$accent;
+	  }
+
+	  > .dismiss-button {
+		font-size: 20px;
+		border-radius: 14px;
+		transition: color 0.2s;
+
+		&:hover {
+		  background: rgba(colors.$maroon, 10%);
+		}
+
+		&:active {
+		  background: rgba(colors.$maroon, 20%);
+		}
+	  }
+	}
+
+	> .body {
+	  margin: 0 12px;
+	  font-size: 14px;
+	  color: colors.$subtext1;
+	}
+
+	> .image {
+	  border-radius: 12px;
+	}
+
+	> box > .action {
+	  padding: 6px 8px;
+	  border-radius: 12px;
+	  font-size: 14px;
+	}
+  }
+}

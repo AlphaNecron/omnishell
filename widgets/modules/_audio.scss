@@ -1,0 +1,9 @@
+@use "../../styles/mixins";
+
+.module-audio {
+  @include mixins.bar-menu-module;
+
+  .icon {
+	font-size: 18px;
+  }
+}

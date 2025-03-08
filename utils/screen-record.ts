@@ -1,14 +1,15 @@
 import GObject, {GLib, property, register} from 'astal/gobject';
 import {Gio, interval, Process, Time} from 'astal';
-import {ensureDirectory, now, sleep} from '@utils/index';
+import {ensureDirectory, notifySend, now, showInFiles, sleep, tryExec} from '.';
 import Hyprland from 'gi://AstalHyprland';
+import {execAsync} from 'astal/process';
 
 const HOME = GLib.get_home_dir();
 
 @register({GTypeName: 'ScreenRecord'})
 export default class ScreenRecord extends GObject.Object {
 	static instance: ScreenRecord;
-	hypr = Hyprland.get_default();
+	#hypr = Hyprland.get_default();
 	
 	static get_default() {
 		if (!this.instance) this.instance = new ScreenRecord();
@@ -39,47 +40,66 @@ export default class ScreenRecord extends GObject.Object {
 	}
 	
 	private async getRegion() {
-		const dimensions = this.hypr.monitors.map(m => m.activeWorkspace.clients).flat().map(c => `${c.x},${c.y} ${c.width}x${c.height}`);
-		const p = Gio.Subprocess.new([
-			'slurp',
-			'-c', '#00000000',
-			// '#cba6f7',
-			'-d',
-			'-F', 'Fantasque Sans Mono',
-			'-o'
-		], Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_MERGE | Gio.SubprocessFlags.STDIN_PIPE);
-		const r = p.communicate_utf8(dimensions.join('\n'), null);
-		return r[1].trim();
+		return Gio.Subprocess.new([
+					'slurp',
+					'-c', '#00000000',
+					// '#cba6f7',
+					'-d',
+					'-F', 'Fantasque Sans Mono',
+					'-o'
+				], Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDIN_PIPE)
+				.communicate_utf8(
+						this.#hypr.monitors
+								.map(m => m.activeWorkspace.clients)
+								.flat()
+								.map(c => `${c.x},${c.y} ${c.width}x${c.height}`)
+								.join('\n'), null)[1].trim();
 	}
 	
 	async freeze() {
-		try {
-			Process.exec('killall -w wayfreeze');
-		} catch {
-		}
+		await tryExec(['killall', '-w', 'wayfreeze']);
 		const p = Process.subprocessv(['wayfreeze', '--hide-cursor']);
 		await sleep(100);
 		return () => p.kill();
 	}
 	
 	async screenshot() {
+		if (await tryExec(['pgrep', '-x', 'slurp|wayfreeze|satty']))
+			return;
+		console.log((await tryExec(['pgrep', '-x', 'slurp|wayfreeze|satty'])) ? 'true' : 'false');
 		const defreeze = await this.freeze();
 		const region = await this.getRegion();
-		if (!region) return;
-		const file = `${this.#screenshots}/${now()}.png`;
-		const out = Process.execv([
+		if (!region) return defreeze();
+		const n = now();
+		const file = `${this.#screenshots}/${n}.jpg`;
+		await execAsync([
 			'grim',
 			'-g', region,
-			'-o',
+			'-t', 'jpeg',
 			file
 		]);
 		defreeze();
-		// notifySend();
+		notifySend({
+			appIcon: 'screenshot',
+			summary: 'Screenie taken',
+			body: `Copied to clipboard!\nSaved as <b>${file}</b>.`,
+			image: file,
+			actions: {
+				'Annotate': () => execAsync(['satty', '-o', `${this.#screenshots}/${n}-annotated.png`, '-f', file]),
+				'Show in Files': () => showInFiles(file)
+			},
+			hints: {
+				'md-icon': 'photo_camera'
+			}
+		});
 	}
 	
-	async start() {
-		if (this.recording) return;
-		new Process({});
+	async start(stopIfRecording: boolean) {
+		if (this.recording) {
+			if (stopIfRecording) await this.stop();
+			return;
+		}
+		await tryExec('killall -INT wl-screenrec');
 		ensureDirectory(this.#recordings);
 		this.#file = `${this.#recordings}/${now()}.mp4`;
 		const region = await this.getRegion();
@@ -90,7 +110,8 @@ export default class ScreenRecord extends GObject.Object {
 			'-g',
 			`${region}`,
 			'--low-power=off',
-			'--codec=hevc',
+			'-b', '1 MB',
+			'--codec=avc',
 			// '--audio',
 			'-f',
 			this.#file
@@ -122,8 +143,22 @@ export default class ScreenRecord extends GObject.Object {
 	async stop() {
 		if (!this.recording) return;
 		// send SIGINT all wl-screenrec processes
-		Process.exec('killall -INT wl-screenrec');
+		await tryExec('killall -INT wl-screenrec');
+		const f = this.#file;
 		this.dispose();
+		await execAsync(['ffmpeg', '-ss', '00:00:01.00', '-i', f, '-vf', 'scale=200:200:force_original_aspect_ratio=decrease', '-vframes', '1', `${f}.jpg`]);
+		await notifySend({
+			appIcon: 'screenshot',
+			summary: 'Recording saved',
+			body: `Saved as <b>${f}</b>.`,
+			image: `${f}.jpg`,
+			actions: {
+				'Show in Files': () => showInFiles(f)
+			},
+			hints: {
+				'md-icon': 'videocam'
+			}
+		});
 	}
 	
 	private dispose() {
@@ -131,6 +166,7 @@ export default class ScreenRecord extends GObject.Object {
 		this.#proc = null;
 		this.#interval?.cancel();
 		this.#fps = 0;
+		this.#file = '';
 		this.notify('recording');
 	}
 }

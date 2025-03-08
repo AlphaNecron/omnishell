@@ -5,6 +5,7 @@ import Bluetooth from 'gi://AstalBluetooth';
 import QuickSettings from '@widget/popovers/quick-settings';
 import {batChargingIcons, batIcons, netWiredSubstitutes, netWirelessSubstitutes} from '@utils/icons';
 import {Gtk} from 'astal/gtk4';
+import type Adw from 'gi://Adw';
 
 const {State, BatteryLevel} = Battery;
 
@@ -92,12 +93,14 @@ function BluetoothIcon() {
 export default function SystemModule() {
 	return (
 			<menubutton direction={Gtk.ArrowType.RIGHT} cssClasses={['module-system']}>
-				<box marginTop={2} marginBottom={2} spacing={6} orientation={Gtk.Orientation.VERTICAL} halign={Gtk.Align.CENTER}>
+				<box marginTop={2} marginBottom={2} spacing={6} vertical halign={Gtk.Align.CENTER}>
 					<BluetoothIcon/>
 					<NetworkIcon/>
 					<BatIcon/>
 				</box>
-				<popover cssClasses={['popover-quick-settings']} position={Gtk.PositionType.RIGHT}>
+				<popover cssClasses={['popover-quick-settings']} onNotifyVisible={self => {
+					(self.get_child() as Adw.NavigationView).pop_to_tag('main');
+				}}>
 					<QuickSettings/>
 				</popover>
 			</menubutton>

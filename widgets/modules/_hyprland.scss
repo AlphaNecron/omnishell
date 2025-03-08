@@ -1,0 +1,32 @@
+@use "../../styles/colors";
+@use "sass:color";
+
+.module-hyprland {
+  button.workspace {
+	padding: 6px 6px 4px 6px;
+	border-radius: 16px;
+	color: colors.$text_low;
+	min-width: 0;
+	border: 1px solid transparent;
+	border-bottom: 3px solid transparent;
+	transition-property: background-color, border-color, color;
+
+	&.focused {
+	  color: colors.$text;
+	  background: rgba(color.mix(colors.$accent, colors.$base, 10%), 40%);
+	  border-color: colors.$accent;
+	  padding-top: 5px;
+	  padding-bottom: 5px;
+
+	  &:hover, &:active {
+		padding-top: 6px;
+		padding-bottom: 6px;
+		border-bottom-width: 1px;
+	  }
+	}
+
+	&.occupied {
+	  color: colors.$text;
+	}
+  }
+}

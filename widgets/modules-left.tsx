@@ -3,7 +3,7 @@ import {Gdk, Gtk} from 'astal/gtk4';
 
 export default function ModulesLeft({mon}: { mon: Gdk.Monitor }) {
 	return (
-			<box spacing={8} orientation={Gtk.Orientation.VERTICAL}>
+			<box spacing={8} vertical>
 				<HyprlandModule mon={mon}/>
 			</box>
 	);

@@ -6,10 +6,12 @@ const tray = Tray.get_default();
 
 export default function TrayModule() {
 	return (
-			<box cssClasses={['module-tray']} orientation={Gtk.Orientation.VERTICAL}>
+			<box cssClasses={['module-tray']} visible={bind(tray, 'items').as(items => items.length > 0)}
+			     vertical>
 				{bind(tray, 'items').as(items => items.map(it => (
 						<menubutton tooltipMarkup={bind(it, 'tooltipMarkup')} menuModel={bind(it, 'menuModel')}
-						            setup={self => self.insert_action_group('dbusmenu', it.actionGroup)} direction={Gtk.ArrowType.RIGHT}>
+						            setup={self => self.insert_action_group('dbusmenu', it.actionGroup)}
+						            direction={Gtk.ArrowType.RIGHT}>
 							<image gicon={bind(it, 'gicon')}>
 								{bind(it, 'title')}
 							</image>

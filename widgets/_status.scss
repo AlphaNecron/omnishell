@@ -1,0 +1,12 @@
+@use "../styles/colors";
+
+.status {
+  > .icon {
+	font-size: 40px;
+	color: colors.$overlay0;
+  }
+
+  > .title {
+	font-weight: 500;
+  }
+}

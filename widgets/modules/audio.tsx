@@ -27,7 +27,7 @@ export default function AudioModule() {
 	if (!audio) return null;
 	return (
 			<menubutton cssClasses={['module-audio']} direction={Gtk.ArrowType.RIGHT}>
-				<box spacing={6} orientation={Gtk.Orientation.VERTICAL} halign={Gtk.Align.CENTER}>
+				<box spacing={6} vertical halign={Gtk.Align.CENTER}>
 					<Endpoint ep={bind(audio, 'defaultSpeaker')}/>
 					<Endpoint ep={bind(audio, 'defaultMicrophone')}/>
 				</box>

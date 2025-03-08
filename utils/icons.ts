@@ -27,11 +27,11 @@ export const workspaceIcons: Record<string, string> = {
 };
 
 export const netWirelessSubstitutes: Record<string, string> = {
-	'network-wireless-signal-excellent-symbolic': 'network_wifi_4_bar',
+	'network-wireless-signal-excellent-symbolic': 'signal_wifi_4_bar',
 	'network-wireless-signal-ok-symbolic': 'network_wifi_3_bar',
 	'network-wireless-signal-good-symbolic': 'network_wifi_2_bar',
 	'network-wireless-signal-weak-symbolic': 'network_wifi_1_bar',
-	'network-wireless-signal-none-symbolic': 'network_wifi_0_bar',
+	'network-wireless-signal-none-symbolic': 'signal_wifi_0_bar',
 	'network-wireless-acquiring-symbolic': 'wifi_find',
 	'network-wireless-connected-symbolic': 'network_wifi',
 	'network-wireless-disabled-symbolic': 'signal_wifi_off',
@@ -96,4 +96,4 @@ export const powerProfileIcons: Record<string, string> = {
 	'power-saver': 'eco',
 	'balanced': 'balance',
 	'performance': 'bolt'
-}
+};

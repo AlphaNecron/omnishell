@@ -1,0 +1,18 @@
+@use "../../../styles/colors";
+
+.popover-quick-settings .page.wifi {
+  .content-list .item {
+	.icon {
+	  font-size: 20px;
+	}
+
+	.status {
+	  font-size: 13px;
+	  color: colors.$text_low;
+	}
+
+	.actions {
+	  font-size: 16px;
+	}
+  }
+}

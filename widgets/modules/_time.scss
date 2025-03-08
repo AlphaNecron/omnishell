@@ -1,0 +1,10 @@
+@use "../../styles/mixins";
+
+$time_font: "Fantasque Sans Mono";
+
+.module-time > .clock {
+  font-family: $time_font;
+  font-feature-settings: 'tnum';
+  font-weight: 600;
+  font-size: 18px;
+}

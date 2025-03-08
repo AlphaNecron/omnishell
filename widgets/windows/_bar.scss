@@ -1,0 +1,15 @@
+@use "../../styles/colors";
+
+@use "../modules/hyprland";
+@use "../modules/audio";
+@use "../modules/tray";
+@use "../modules/system";
+@use "../modules/time";
+@use "../modules/screenrec";
+
+@use "../popovers/quick-settings";
+
+window.bar {
+  background: rgba(colors.$mantle, 20%);
+  padding: 4px 6px;
+}

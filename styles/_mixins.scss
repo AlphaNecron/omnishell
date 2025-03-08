@@ -1,0 +1,36 @@
+@use "colors";
+
+@mixin bar-menu-module {
+  > button {
+	padding: 6px 4px;
+
+	&:checked {
+	  background: rgba(colors.$accent, 20%);
+	}
+  }
+}
+
+@mixin bar-module {
+  padding: 4px;
+  background: rgba(colors.$accent, 10%);
+  border-radius: 16px;
+
+  button {
+	border-radius: 12px;
+  }
+}
+
+@mixin popover {
+  > contents, > arrow {
+	@include popup;
+  }
+
+  > contents {
+	border-radius: 28px;
+  }
+}
+
+@mixin popup {
+  border: 1px solid colors.$container_elevated;
+  background: colors.$container;
+}

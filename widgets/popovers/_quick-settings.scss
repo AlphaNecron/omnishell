@@ -1,0 +1,60 @@
+@use "../../styles/colors";
+@use "../../styles/mixins";
+
+@use "quick-settings/main";
+@use "quick-settings/wifi";
+@use "quick-settings/bluetooth";
+
+.popover-quick-settings {
+  @include mixins.popover;
+
+  .top-bar, .bottom-bar {
+	background: colors.$container;
+  }
+
+  .top-bar {
+	margin-bottom: 8px;
+  }
+
+  .bottom-bar {
+	margin-top: 8px;
+  }
+
+  .tile {
+	border-radius: 20px;
+	padding: 8px 16px;
+	background: colors.$container_elevated;
+
+	.icon {
+	  font-size: 20px;
+	}
+
+	.text {
+	  font-size: 14px;
+	  font-weight: 600;
+	}
+
+	&.active {
+	  background: colors.$accent;
+	  color: colors.$text_alt;
+	}
+  }
+
+  .controls {
+	background: colors.$container_elevated;
+	padding: 10px 12px;
+	border-radius: 20px;
+  }
+
+  .page {
+	padding: 4px;
+
+	.content-list {
+	  background: colors.$container;
+
+	  > .item {
+		padding: 6px 8px;
+	  }
+	}
+  }
+}

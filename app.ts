@@ -1,45 +1,50 @@
 #!/usr/bin/gjs -m
 
-import {App, Astal} from 'astal/gtk4';
+import {App, Astal, Gdk} from 'astal/gtk4';
 import style from './styles/main.scss';
 import Bar from '@widget/windows/bar';
 import ScreenRecord from '@utils/screen-record';
 import Hyprland from 'gi://AstalHyprland';
+import {Container as NotiContainer} from '@widget/windows/notifications';
 
 const hypr = Hyprland.get_default();
+
+function initMon(m?: Gdk.Monitor): Astal.Window[] {
+	if (!m) return [];
+	return [
+		new Bar(m),
+		new NotiContainer(m)
+	];
+}
 
 App.start({
 	css: style,
 	instanceName: 'omnishell',
 	main() {
-		const bars = new Map<number, Astal.Window>();
+		const mons = new Map<number, Astal.Window[]>();
 		const gdkMons = App.get_monitors();
-		for (const mon of hypr.monitors) bars.set(mon.id, new Bar(gdkMons.find(d => d.connector === mon.name)!));
+		for (const mon of hypr.monitors) mons.set(mon.id, initMon(gdkMons.find(d => d.connector === mon.name)));
 		hypr.connect('monitor-added', (_, mon) => {
 			const m = App.get_monitors().find(m => m.connector === mon.name);
 			if (!m) return;
-			return bars.set(mon.id, new Bar(m));
+			return mons.set(mon.id, initMon(m));
 		});
 		hypr.connect('monitor-removed', (_, mon) => {
-			bars.get(mon)?.destroy();
-			bars.delete(mon);
+			mons.get(mon)?.forEach(m => m?.destroy());
+			mons.delete(mon);
 		});
 	},
-	async requestHandler(request: string, res: (response: any) => void) {
+	async requestHandler(req: string, res: (response: any) => void) {
 		const sr = ScreenRecord.get_default();
-		switch (request) {
+		console.log(req);
+		switch (req) {
 			case 'screenrec':
+				await sr.start(true).catch();
 				res('ok');
-				await sr.start().catch();
 				break;
 			case 'screenshot':
-				res('ok');
-				await sr.screenshot();
+				await sr.screenshot().finally(() => res('ok'));
 				break;
-				// case 'screenshot-select':
-				// 	res('ok');
-				// 	await sr.screenshot();
-				// 	break;
 			default:
 				res('okn\'t');
 				break;

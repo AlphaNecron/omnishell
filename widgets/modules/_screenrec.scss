@@ -1,0 +1,15 @@
+@use "../../styles/mixins";
+
+.module-screenrec {
+  @include mixins.bar-module;
+  > button {
+	padding: 4px;
+  }
+
+  .timer {
+	margin-bottom: 2px;
+	font-size: 14px;
+	font-weight: 500;
+	font-feature-settings: 'tnum';
+  }
+}

@@ -3,6 +3,8 @@ import {b, BasePage, List} from './common';
 import Bluetooth from 'gi://AstalBluetooth';
 import {Gtk} from 'astal/gtk4';
 import {batIcons} from '@utils/icons';
+import Adw from 'gi://Adw';
+import Status from '@widget/status';
 
 const bt = Bluetooth.get_default();
 
@@ -25,6 +27,10 @@ export function Page() {
 		bind(bt, 'adapter').prop('powered'),
 		bind(bt, 'adapter').prop('discovering')
 	], (powered, discovering) => powered && !discovering);
+	const state = Variable.derive([
+		bind(bt, 'adapter').prop('powered'),
+		bind(bt, 'adapter').prop('discovering')
+	], (powered, discovering) => powered ? discovering ? 'discovering' : 'enabled' : 'disabled');
 	return (
 			<BasePage title='Bluetooth' tag='bluetooth' actions={[
 				<button cssClasses={['icon']}
@@ -40,30 +46,40 @@ export function Page() {
 					)}
 				</button>,
 				<switch active={bind(bt, 'isPowered')} valign={Gtk.Align.CENTER}
-				        onNotifyActive={self => {
-					        if (self.active !== bt.adapter.powered)
-						        bt.adapter.powered = self.active;
-				        }}/>
-			]}>
-				<List items={bind(bt, 'devices').as(devs => devs.sort((a, b) => a.connected ? 1 : b.connected ? -1 : 0))}
-				      onDestroy={() => {
-					      canDiscover.drop();
-				      }}
-				      render={dev => (
-						      <box spacing={8}>
-							      <image iconName={bind(dev, 'icon')} cssClasses={['device-icon']}/>
-							      <label hexpand halign={Gtk.Align.START}>
-								      {dev.name}
-							      </label>
-							      <box halign={Gtk.Align.END} visible={bind(dev, 'connected')} spacing={4}
-							           tooltipText={bind(dev, 'batteryPercentage').as(perc => `${Math.round(perc * 100)}%`)}>
-								      <label cssClasses={['icon']}>
-									      {bind(dev, 'batteryPercentage').as(perc => batIcons[Math.round(perc * 10)])}
-								      </label>
-							      </box>
-						      </box>
-				      )} renderContent={dev => (<button>connect</button>)}
-				      heightRequest={bind(bt, 'devices').as(devs => Math.min(240, devs.length * 40))}/>
+				        onNotifyActive={self => bt.adapter.powered = self.active}/>
+			]} onDestroy={() => {
+				canDiscover.drop();
+				state.drop();
+			}}>
+				<stack visibleChildName={state()}>
+					<Status icon='bluetooth_disabled' name='disabled'
+					        title='Bluetooth is disabled'/>
+					<Adw.Spinner name='scanning' valign={Gtk.Align.CENTER} heightRequest={48}/>
+					<List name='enabled'
+					      items={bind(bt, 'devices').as(devs => devs.sort((a, b) => (a.connected && a.connected === b.connected) ? a.alias.localeCompare(b.alias) : a.connected ? -1 : 1))}
+					      render={dev => {
+						      return (
+								      <box spacing={12}>
+									      {bind(dev, 'connecting').as(connecting => connecting ? (
+											      <Adw.Spinner cssClasses={['device-icon']} valign={Gtk.Align.CENTER}/>
+									      ) : (
+											      <image iconName={bind(dev, 'icon')} valign={Gtk.Align.CENTER}
+											             cssClasses={bind(dev, 'connected').as(c => ['device-icon', c ? 'connected' : ''])}/>
+									      ))}
+									      <box vertical valign={Gtk.Align.CENTER}>
+										      <label hexpand halign={Gtk.Align.START}>
+											      {bind(dev, 'alias')}
+										      </label>
+										      <box visible={bind(dev, 'connected')} spacing={4} cssClasses={['battery']}>
+											      <label
+													      cssClasses={['icon']}>{bind(dev, 'batteryPercentage').as(perc => batIcons[Math.round(perc * 10)])}</label>
+											      {bind(dev, 'batteryPercentage').as(perc => `${Math.round(perc * 100)}%`)}
+										      </box>
+									      </box>
+								      </box>
+						      );
+					      }}/>
+				</stack>
 			</BasePage>
 	);
 }

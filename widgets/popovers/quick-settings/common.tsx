@@ -6,29 +6,19 @@ import {DummyBinding} from 'astal/binding';
 
 const ScrolledWindow = astalify<Gtk.ScrolledWindow, Gtk.ScrolledWindow.ConstructorProps>(Gtk.ScrolledWindow);
 
-export function List<T extends GObject.Object>({items, render, renderContent, ...props}: {
+export function List<T extends GObject.Object>({items, render, ...props}: {
 	items: Binding<T[]>,
-	render(it: T): JSX.Element,
-	renderContent(it: T): JSX.Element
+	render(it: T): JSX.Element
 } & Partial<ConstructProps<Gtk.ScrolledWindow, Gtk.ScrolledWindow.ConstructorProps>>) {
 	return ScrolledWindow({
 		...props,
 		hexpand: true,
 		child: new Adw.Clamp({
 			child: (
-					<box orientation={Gtk.Orientation.VERTICAL} cssClasses={['qs-content-list']}>
+					<box vertical cssClasses={['content-list']}>
 						{items.as(_items => _items.map(it => (
-								<box cssClasses={['item']} orientation={Gtk.Orientation.VERTICAL}>
-									<button cssClasses={['trigger']}
-									        onClicked={self => {
-										        const r = self.get_next_sibling() as Gtk.Revealer;
-										        r.revealChild = !r.revealChild;
-									        }}>
-										{render(it)}
-									</button>
-									<revealer>
-										{renderContent(it)}
-									</revealer>
+								<box cssClasses={['item']} vertical>
+									{render(it)}
 								</box>
 						)))}
 					</box>
@@ -45,35 +35,42 @@ export function List<T extends GObject.Object>({items, render, renderContent, ..
 }
 
 export function BasePage({
-	                  tag,
-	                  title,
-	                  child,
-	                  actions
-                  }: {
+	                         tag,
+	                         title,
+	                         child,
+	                         actions,
+	                         onDestroy
+                         }: {
 	tag: string
 	title: string
 	toggleState?: Binding<boolean>
 	child?: JSX.Element
-	actions?: JSX.Element[]
+	actions?: JSX.Element[],
+	onDestroy?(): void;
 }) {
 	const toolbar = new Adw.ToolbarView({
 		content: child,
-		cssClasses: ['qs-toolbar']
+		cssClasses: ['toolbar'],
+		heightRequest: 240
 	});
-	toolbar.add_top_bar(
-			<Adw.HeaderBar titleWidget={
-				<box>
-					<label hexpand halign={Gtk.Align.START} cssClasses={['qs-page-title']}>{title}</label>
-					{(actions?.length || 0) > 0 && (
-							<box halign={Gtk.Align.END} valign={Gtk.Align.CENTER} cssClasses={['qs-page-actions']} spacing={8}>
-								{actions}
-							</box>
-					)}
+	if (onDestroy)
+		toolbar.connect('destroy', onDestroy);
+	const hb = new Adw.HeaderBar();
+	if (actions && actions.length > 0)
+		hb.pack_end(
+				<box halign={Gtk.Align.END} valign={Gtk.Align.CENTER} cssClasses={['page-actions']} spacing={8}>
+					{actions}
 				</box>
-			}/>
+		);
+	toolbar.add_top_bar(
+			hb
+			// <Adw.HeaderBar titleWidget={
+			// 	<box>
+			// 		<label hexpand halign={Gtk.Align.START} cssClasses={['page-title']}>{title}</label>
+			// }/>
 	);
 	return new Adw.NavigationPage({
-		cssClasses: ['qs-page', tag],
+		cssClasses: ['page', tag],
 		title,
 		tag,
 		child: toolbar
@@ -95,4 +92,27 @@ export function b<T extends string | number | bigint | boolean>(v: Variable<T> |
 
 export function chunkify<T>(arr: T[], sz: number): T[][] {
 	return Array.from({length: Math.ceil(arr.length / sz)}, (_, i) => arr.slice(i * sz, i * sz + sz));
+}
+
+export enum ConnState {
+	CONNECTED,
+	CONNECTING,
+	DISCONNECTED
+}
+
+export function ConnectionState({state, icons, ...props}: {
+	state: Binding<ConnState>,
+	icons: Record<ConnState, Gtk.Widget | Binding<Gtk.Widget>>,
+} & Partial<ConstructProps<Gtk.Stack, Gtk.Stack.ConstructorProps>>) {
+	return (
+			<stack {...props} visibleChildName={state.as(s => s.toString())}>
+				<label>
+					{Object.entries(icons).map(([k, v]) => (
+							<box name={k}>
+								{v}
+							</box>
+					))}
+				</label>
+			</stack>
+	);
 }

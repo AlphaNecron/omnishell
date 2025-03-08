@@ -1,0 +1,30 @@
+@use "../../../styles/colors";
+
+.popover-quick-settings .page.bluetooth {
+  .content-list .item {
+	.battery {
+	  font-size: 12px;
+	  color: colors.$text_tinted;
+
+	  .icon {
+		font-size: 14px;
+	  }
+	}
+
+	.device-icon {
+	  -gtk-icon-style: symbolic;
+	  color: colors.$base;
+	  padding: 4px;
+	  border-radius: 8px;
+	  transition: background 0.2s;
+
+	  &.connected {
+		background: colors.$green;
+	  }
+
+	  &:not(.connected) {
+		background: colors.$accent;
+	  }
+	}
+  }
+}

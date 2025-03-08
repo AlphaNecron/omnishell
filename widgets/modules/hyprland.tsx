@@ -10,7 +10,7 @@ export default function HyprlandModule({mon}: { mon: Gdk.Monitor }) {
 		bind(hypr, 'workspaces'),
 		bind(hypr, 'focusedWorkspace')
 	], (wss, fws) =>
-			wss.filter(ws => ws.monitor.name === mon.connector)
+			wss.filter(ws => ws.monitor?.name === mon.connector)
 					.sort((a, b) => a.id - b.id)
 					.map(ws => ({
 						id: ws.id,
@@ -18,7 +18,7 @@ export default function HyprlandModule({mon}: { mon: Gdk.Monitor }) {
 						focused: ws.id === fws.id
 					})));
 	return (
-			<box orientation={Gtk.Orientation.VERTICAL} cssClasses={['module-hyprland']} spacing={6}
+			<box vertical cssClasses={['module-hyprland']} spacing={6}
 			     onDestroy={() => curMonWorkspaces.drop()}>
 				{curMonWorkspaces().as(wss => wss
 						.map(ws =>

@@ -10,6 +10,7 @@ export default class Bar extends Astal.Window {
 	constructor(mon: Gdk.Monitor) {
 		super({
 			visible: true,
+			namespace: 'omnishell-bar',
 			application: App,
 			gdkmonitor: mon,
 			exclusivity: Astal.Exclusivity.EXCLUSIVE,
